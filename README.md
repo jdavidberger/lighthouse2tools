@@ -40,10 +40,10 @@ The USB protocol for a plugged in device still receives the same envelop record 
 
 ```C++
 struct lh2_entry {
-				uint8_t code; // sensor with some bit flag at 0x80. Continuation flag?
-				uint32_t time; // 48mhz timecode
-				uint8_t data[8]; // modulated signal? 
-			};
+	uint8_t code; // sensor with some bit flag at 0x80. Continuation flag?
+	uint32_t time; // 48mhz timecode
+	uint8_t data[8]; // modulated signal? 
+};
 struct lh2_packet {
         lh2_entry entries[4];
         uint8_t some_bit_flag;
