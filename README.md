@@ -57,6 +57,14 @@ The total size is 58 bytes since the first byte is the report type id. Note that
 
 How to turn that modulated signal into the bitstream is currently unclear. Based on how the lighthouse_console tool works, it seems like those 64 bits is a sampling of the data line at 12mhz; and through some process turns into the 6mhz signal. There are a lot of current hints about differential manchester encoding but the signal is somewhat noisy and so this remains the missing chunk of reading in USB data. 
 
+# Open questions
+
+- How to demodulate the USB data into something useful for LFSR?
+- How best to construct a reprojection model for the X sweep pattern?
+- How to use the new calibration parameters?
+- What 'initial value' is in play for each LFSR polynomial? 
+- What are the miscellaneous bits in the USB packet for? 
+
 # Useful external tools
 
 - If you plug into a lighthouses usb port, you get a TTY into it -- standard 115200 baud. It doesn't have a help command, but it has tab completion so you can hit tab a few times to see all commands. This lets you set the mode, and look at system paramters. 
