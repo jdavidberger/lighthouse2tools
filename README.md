@@ -36,6 +36,7 @@ As far as I know, there is no syncronization between lighthouses which is why ea
 
 ## USB protocol
 
+### Report ID: 39
 The USB protocol for a plugged in device still receives the same envelop record type 37; but there is also a new record type 39. So far this packet is decoded to look like this:
 
 ```C++
@@ -57,6 +58,24 @@ The total size is 58 bytes since the first byte is the report type id. Note that
 
 How to turn that modulated signal into the bitstream is currently unclear. Based on how the lighthouse_console tool works, it seems like those 64 bits is a sampling of the data line at 12mhz; and through some process turns into the 6mhz signal. There are a lot of current hints about differential manchester encoding but the signal is somewhat noisy and so this remains the missing chunk of reading in USB data. 
 
+### Report ID: 40
+
+The devices themselves, presumably for bandwidth reasons, are capable of deciphering the bistream themselves and giving raw timing data. You must send a configuration sequence to the device to get this report type. **TODO**: Figure out what that sequence is.
+
+Report ID gives a heavily packed structure which reports both virtual syncs and collisions with the laser per sensor. See code to read it [here](https://github.com/cnlohr/libsurvive/blob/269d446659e81599dd092ff1baa17b2f6eb80004/src/driver_vive.c#L2039). 
+
+The first byte gives the length of the packet, excluding itself. 
+
+Subsequent bytes are read as a bitflag for the first 4 bits. `0bXXXX XFSC`. 
+
+If the `C` bit is set, the data is a channel marker. The second octet gives the channel number. In this case; it's unclear if the remaining 3 bits are used for anything.
+
+If the `S` bit is set, we are seeing a sensor hit. Read 4 bytes from the stream as such: `0bSSSS STTT TTTT TTTT TTTT TTTT TTTT TFSC`. The `T` section here is a 24bit timecode; you can recover the full timecode by using the most recent IMU timecode. The `S` portion denotes which sensor we are seeing. 
+
+If the `S` bit is not set, we are seeing a sync event. Given my understanding, this event is mostly a made up thing just to give context to the timestamps after it -- it gives the starting point of the rotation. Read the 4 bytes from the stream as: `0bXXXX GOTT TTTT TTTT TTTT TTTT TTTT TTSC`. The `T` section is the 24bit timecode value. `O` is the ootx bit and `G` is something referred to as a generational value; presumably to track when channels are rediscovered(?). It's unclear if the `XXXX` bits refer to anything or are used for future proofing. 
+
+It seems like the virtual syncs happen once per rotation; so you tend to get 2 hits per sensor per rotation -- one in the first half of the rotation and the other in the second half. This would imply the OOTX changes only once per rotation.
+
 # Open questions
 
 - How to demodulate the USB data into something useful for LFSR?
@@ -64,6 +83,7 @@ How to turn that modulated signal into the bitstream is currently unclear. Based
 - How to use the new calibration parameters?
 - What 'initial value' is in play for each LFSR polynomial? 
 - What are the miscellaneous bits in the USB packet for? 
+- How do you enable report type 40? 
 
 # Useful external tools
 
