@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
     for(int i = 1;i < argc;i++) {
         auto [sample, mask] = parse_sample_mask(argv[i]);
         int best = find_best_poly(sample, mask, 12, 14);
-        printf("Best for '%s': %d -- %d d: %d\n", argv[i], best, lfsr_period(poly_pairs[best]), lfsr_find(poly_pairs[best], 1, sample));
+        printf("Best for '%s': %d -- %d d: %d\n", argv[i], best, lfsr_period(poly_pairs[best]), lfsr_find_with_mask(poly_pairs[best], 1, sample, mask));
     }
     return 0;
 }
