@@ -39,6 +39,7 @@ uint32_t lfsr_find_with_mask(lfsr_poly_t p, lfsr_state_t start, lfsr_state_t sta
 void print_binary(uint32_t v);
 void lsfr_print(lfsr_state_t start, lfsr_poly_t p);
 lfsr_poly_t lsfr_mirror_poly(lfsr_poly_t poly);
+std::string lsfr_iterate_str(lfsr_state_t state, lfsr_poly_t poly, uint32_t cnt = 1);
 lfsr_state_t lsfr_iterate(lfsr_state_t state, lfsr_poly_t poly, uint32_t cnt = 1);
 lfsr_t lsfr_iterate(lfsr_t lsfr, uint32_t cnt = 1);
 int lfsr_order(lfsr_poly_t v);

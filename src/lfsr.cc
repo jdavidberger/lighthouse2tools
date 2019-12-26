@@ -1,4 +1,6 @@
+#include <bitset>
 #include "lfsr.h"
+#include "stdlib.h"
 
 lfsr_state_t lsfr_iterate(lfsr_state_t state, lfsr_poly_t poly, uint32_t cnt) {
     for(int i = 0;i < cnt;i++) {
@@ -7,13 +9,22 @@ lfsr_state_t lsfr_iterate(lfsr_state_t state, lfsr_poly_t poly, uint32_t cnt) {
     }
     return state;
 }
+std::string lsfr_iterate_str(lfsr_state_t state, lfsr_poly_t poly, uint32_t cnt) {
+    std::string rtn = std::bitset<32>(state).to_string();
+    for(int i = 0;i < cnt;i++) {
+        uint16_t b = popcnt(state & poly) & 1u;
+        state = (state << 1u) | b;
+        rtn += ('0' + b);
+    }
+    return rtn;
+}
 
 void print_binary(uint32_t v) {
     for(int k = 0;k < 32;k++) {
         bool b = (v >> (32-k-1)) & 1;
-        printf("%d", b );
+        fprintf(stderr,"%d", b );
     }
-    printf("\n");
+    fprintf(stderr,"\n");
 }
 
 int lfsr_order(lfsr_poly_t v) {
