@@ -11,7 +11,7 @@
  * of all LFSR streams; while also saying something about the two types of encoding.
  *
  * I don't think this property is particularly useful; the lower order the polynomial the easier it is to work with
- * and the two decoders are of similar complexity. 
+ * and the two decoders are of similar complexity.
  */
 
 #include <stdio.h>
@@ -88,7 +88,7 @@ int main(int argc, char **argv, char **env)
 
      for(int j=0;j<numtaps;j++) {
       unsigned int b = sh&taps[j];
-      b^=b>>16;b^=b>>8;b^=b>>4;b^=b>>2;b^=b>>1;b&=1; // parity
+         b^=b>>16;b^=b>>8;b^=b>>4;b^=b>>2;b^=b>>1;b&=1; // parity
       if (!b) detect[j]++; // count zeroes
      }
         total++;

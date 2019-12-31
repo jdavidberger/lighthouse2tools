@@ -1,5 +1,8 @@
 #include "lh2polys.h"
 
+//#define DEBUG(...) fprintf(stderr, __VA_ARGS__)
+#define DEBUG(...)
+
 lfsr_poly_t poly_pairs[32] =
         {
              // x^17 + x^13 + x^12 + x^10 + x^7 + x^4 + x^2 + x^1 + 1
@@ -43,8 +46,6 @@ int find_best_poly(uint32_t sample, uint32_t mask, uint32_t start, uint32_t end)
 
     int best = 0;
     int best_error = 32;
-    uint32_t best_final_state = 0;
-    uint32_t best_error_bits = 0;
 
     for(int i = start;i < end;i++) {
         uint32_t lookup_res = 0;
@@ -52,34 +53,26 @@ int find_best_poly(uint32_t sample, uint32_t mask, uint32_t start, uint32_t end)
         for(uint8_t j = 0;j < 16 && lookup_res == 0;j++) {
             if( ((mask >> j) & 0x1FFFF) == 0x1FFFF) {
                 lookup_res = lfsr_lookup_query(poly_pair_lookups[i], sample >> j) - j;
-                fprintf(stderr,"Poly %d -- %d", i, lookup_res);
+                DEBUG("Poly %2d -- %6d\t", i, lookup_res);
             }
         }
-        uint32_t state = sample >> 15u;
-        uint32_t final_state = lsfr_iterate(state, poly_pairs[i], 15);
 
-        uint32_t error_bits = (final_state ^ sample) & mask;
+        uint32_t error_bits = lfsr_error(poly_pairs[i], sample, mask);
         uint32_t error = popcnt(error_bits);
 
-        fprintf(stderr, " error %d\n", error);
-
-        if(error == 0)
-            return i;
+        DEBUG( " error %d\n", error);
 
         if(error < best_error) {
             best_error = error;
             best = i;
-            best_error_bits = error_bits;
-            best_final_state = final_state;
+
+            if(best_error == 0)
+                break;
         }
         //printf("Poly %d has %d errors %d\n", i, error, lookup_res);
     }
 
-    fprintf(stderr, "Best error was %d at %d\n", best, best_error);
-    print_binary(best_error_bits);
-    print_binary(sample);
-    print_binary(best_final_state);
-    print_binary(mask);
+    DEBUG( "Best error was %d at %d\n", best, best_error);
 
     return best;
 }

@@ -19,12 +19,12 @@ std::string lsfr_iterate_str(lfsr_state_t state, lfsr_poly_t poly, uint32_t cnt)
     return rtn;
 }
 
-void print_binary(uint32_t v) {
+void print_binary(uint32_t v, const std::string& postfix) {
     for(int k = 0;k < 32;k++) {
         bool b = (v >> (32-k-1)) & 1;
         fprintf(stderr,"%d", b );
     }
-    fprintf(stderr,"\n");
+    fprintf(stderr,"%s",postfix.c_str());
 }
 
 int lfsr_order(lfsr_poly_t v) {
@@ -127,3 +127,17 @@ uint32_t lfsr_find_with_mask(lfsr_poly_t p, lfsr_state_t start, lfsr_state_t sta
 
 
 lfsr_t::lfsr_t(lfsr_poly_t poly, lfsr_state_t state) : poly(poly), state(state) {}
+
+uint32_t lfsr_error(lfsr_poly_t p, lfsr_state_t state, uint32_t mask) {
+    uint32_t err = 0;
+    lfsr_poly_t error_p = (p << 1u) | 1u;
+    while(mask >= error_p) {
+        if((mask & error_p) == error_p) {
+            err |= popcnt(state & error_p) & 1u;
+        }
+        state >>= 1u;
+        mask >>= 1u;
+        err <<= 1u;
+    }
+    return err;
+}
