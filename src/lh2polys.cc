@@ -1,7 +1,15 @@
-#include "lh2polys.h"
+#include "lighthouse2tools/include/lh2polys.h"
 
-//#define DEBUG(...) fprintf(stderr, __VA_ARGS__)
+#ifdef CPU_MIMXRT1062DVL6A
+#include "fsl_debug_console.h"
+#define DEBUG(...) PRINTF(__VA_ARGS__)
+#else
+#define DEBUG(...) fprintf(stderr, __VA_ARGS__)
+#endif
+
+#ifndef DEBUG
 #define DEBUG(...)
+#endif
 
 lfsr_poly_t poly_pairs[32] =
         {
@@ -41,8 +49,13 @@ static void init_lookups() {
     }
 }
 
-int find_best_poly(uint32_t sample, uint32_t mask, uint32_t start, uint32_t end) {
+uint32_t lh2_lookup_query(uint8_t channel, uint32_t q) {
     init_lookups();
+    return lfsr_lookup_query(poly_pair_lookups[channel], q);
+}
+
+int find_best_poly(uint32_t sample, uint32_t mask, uint32_t start, uint32_t end) {
+    //init_lookups();
 
     int best = 0;
     int best_error = 32;
@@ -50,29 +63,28 @@ int find_best_poly(uint32_t sample, uint32_t mask, uint32_t start, uint32_t end)
     for(int i = start;i < end;i++) {
         uint32_t lookup_res = 0;
 
+        /*
         for(uint8_t j = 0;j < 16 && lookup_res == 0;j++) {
             if( ((mask >> j) & 0x1FFFF) == 0x1FFFF) {
                 lookup_res = lfsr_lookup_query(poly_pair_lookups[i], sample >> j) - j;
                 DEBUG("Poly %2d -- %6d\t", i, lookup_res);
             }
         }
+        */
 
         uint32_t error_bits = lfsr_error(poly_pairs[i], sample, mask);
         uint32_t error = popcnt(error_bits);
 
-        DEBUG( " error %d\n", error);
+        DEBUG( "%2d error %d\r\n", i, error);
 
         if(error < best_error) {
             best_error = error;
             best = i;
-
-            if(best_error == 0)
-                break;
         }
-        //printf("Poly %d has %d errors %d\n", i, error, lookup_res);
+        //printf("Poly %d has %d errors %d\r\n", i, error, lookup_res);
     }
 
-    DEBUG( "Best error was %d at %d\n", best, best_error);
+    DEBUG( "Best error was %d at %d\r\n", best, best_error);
 
     return best;
 }

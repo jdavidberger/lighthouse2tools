@@ -1,4 +1,4 @@
-#include "lh2polys.h"
+#include "lighthouse2tools/include/lh2polys.h"
 
 static std::tuple<uint32_t, uint32_t> parse_sample_mask(const std::string& s) {
     uint32_t sample = 0, mask = 0;

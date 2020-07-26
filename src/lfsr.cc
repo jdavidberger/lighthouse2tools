@@ -1,5 +1,6 @@
 #include <bitset>
-#include "lfsr.h"
+#include <vector>
+#include "lighthouse2tools/include/lfsr.h"
 #include "stdlib.h"
 
 lfsr_state_t lsfr_iterate(lfsr_state_t state, lfsr_poly_t poly, uint32_t cnt) {
@@ -8,6 +9,15 @@ lfsr_state_t lsfr_iterate(lfsr_state_t state, lfsr_poly_t poly, uint32_t cnt) {
         state = (state << 1u) | b;
     }
     return state;
+}
+std::vector<bool> lsfr_iterate_vec(lfsr_state_t state, lfsr_poly_t poly, uint32_t cnt) {
+    std::vector<bool> rtn;
+    for(int i = 0;i < cnt;i++) {
+        uint16_t b = popcnt(state & poly) & 1u;
+        state = (state << 1u) | b;
+        rtn.push_back(b);
+    }
+    return rtn;
 }
 std::string lsfr_iterate_str(lfsr_state_t state, lfsr_poly_t poly, uint32_t cnt) {
     std::string rtn = std::bitset<32>(state).to_string();

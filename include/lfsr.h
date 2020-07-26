@@ -1,5 +1,8 @@
+#pragma once
+
 #include <tuple>
 #include "assert.h"
+#include <vector>
 
 typedef uint32_t lfsr_poly_t;
 typedef uint32_t lfsr_state_t;
@@ -16,7 +19,8 @@ static inline uint8_t popcnt(uint32_t x) {
     return __builtin_popcount(x);
 }
 #else
-static inline uint8_t popcnt(uint32_t x)
+template <typename T>
+static inline uint8_t popcnt(T x)
 {
     int c;
     for (c = 0; x != 0; x >>= 1u)
@@ -46,6 +50,7 @@ void print_binary(uint32_t v, const std::string& postfix = "\n");
 void lsfr_print(lfsr_state_t start, lfsr_poly_t p);
 lfsr_poly_t lsfr_mirror_poly(lfsr_poly_t poly);
 std::string lsfr_iterate_str(lfsr_state_t state, lfsr_poly_t poly, uint32_t cnt = 1);
+std::vector<bool> lsfr_iterate_vec(lfsr_state_t state, lfsr_poly_t poly, uint32_t cnt = 1);
 lfsr_state_t lsfr_iterate(lfsr_state_t state, lfsr_poly_t poly, uint32_t cnt = 1);
 lfsr_t lsfr_iterate(lfsr_t lsfr, uint32_t cnt = 1);
 int lfsr_order(lfsr_poly_t v);
